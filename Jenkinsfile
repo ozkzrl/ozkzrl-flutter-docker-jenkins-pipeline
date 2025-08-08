@@ -3,7 +3,7 @@ pipeline {
         dockerfile {
             filename 'Dockerfile'
             dir '.'         // Dockerfile'ın olduğu dizin
-            label 'docker'  // Bu label'a sahip bir Jenkins agent olmalı
+        
         }
     }
 

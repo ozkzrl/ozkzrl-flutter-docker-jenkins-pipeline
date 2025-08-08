@@ -1,14 +1,14 @@
-# Base Jenkins image
+# Jenkins + Flutter SDK image
 FROM jenkins/jenkins:lts
 
 USER root
 
-# Gerekli sistem paketleri
+# Sistem paketleri
 RUN apt-get update && apt-get install -y \
     curl git unzip xz-utils zip libglu1-mesa openjdk-17-jdk \
     && apt-get clean
 
-# Android SDK
+# Android SDK ortam değişkenleri (gerekirse)
 ENV ANDROID_HOME=/opt/android-sdk
 ENV PATH=$PATH:$ANDROID_HOME/emulator:$ANDROID_HOME/tools:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools
 
@@ -22,10 +22,10 @@ ENV PATH="${FLUTTER_HOME}/bin:${FLUTTER_HOME}/bin/cache/dart-sdk/bin:${PATH}"
 RUN git clone https://github.com/flutter/flutter.git -b stable ${FLUTTER_HOME} \
     && ${FLUTTER_HOME}/bin/flutter doctor
 
-# Yetkiler
+# Jenkins kullanıcısına yetki ver
 RUN chown -R jenkins:jenkins ${FLUTTER_HOME}
 
 USER jenkins
 
-# Flutter doctor önbellek hazırlığı
+# Flutter önbellek ve setup
 RUN flutter doctor -v
