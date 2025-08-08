@@ -28,5 +28,9 @@ RUN chown -R jenkins:jenkins /opt/flutter \
 
 # Jenkins kullanıcısını docker grubuna ekle
 RUN groupadd -for docker && usermod -aG docker jenkins
+RUN git clone https://github.com/flutter/flutter.git /opt/flutter && \
+    git config --global --add safe.directory /opt/flutter && \
+    chown -R jenkins:jenkins /opt/flutter
+
 
 USER jenkins
