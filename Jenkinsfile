@@ -2,13 +2,17 @@ pipeline {
     agent any
 
     environment {
-        PATH = "/opt/flutter/bin:/opt/flutter/bin/cache/dart-sdk/bin:$PATH"
+        FLUTTER_HOME = "${WORKSPACE}/flutter"
+        PATH = "${FLUTTER_HOME}/bin:${PATH}"
     }
 
     stages {
-        stage('Clone') {
+        stage('Install Flutter') {
             steps {
-                checkout scm
+                sh '''
+                    git clone https://github.com/flutter/flutter.git -b stable $FLUTTER_HOME
+                    flutter doctor
+                '''
             }
         }
 
@@ -31,22 +35,14 @@ pipeline {
             }
         }
 
-        // İsteğe bağlı olarak deploy aşaması
         stage('Deploy') {
-            when {
-                branch 'main'
-            }
             steps {
-                echo 'Deploy işlemi buraya gelecek...'
-                // Örnek: scp ile başka sunucuya apk gönder
+                echo 'Deploy işlemi burada yapılır.'
             }
         }
     }
 
     post {
-        success {
-            echo '✅ Pipeline başarıyla tamamlandı.'
-        }
         failure {
             echo '❌ Pipeline başarısız oldu.'
         }
