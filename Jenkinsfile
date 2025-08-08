@@ -1,22 +1,22 @@
 pipeline {
-    agent any
-
-    environment {
-        IMAGE_NAME = 'flutter-web-app'
-        CONTAINER_NAME = 'flutter-web-container'
+    agent {
+        docker {
+            image 'seninkullaniciad/fluter-jenkins-agent' // Docker Hub’a push’ladıysan
+            args '-v /var/run/docker.sock:/var/run/docker.sock' // Docker build için gerekli
+        }
     }
 
     stages {
         stage('Checkout') {
             steps {
-                echo '📥 Kod GitHub\'dan dev branch\'ten çekiliyor...'
+                echo '📥 Kod çekiliyor...'
                 git branch: 'dev', url: 'https://github.com/ozkzrl/ozkzrl-flutter-docker-jenkins-pipeline.git'
             }
         }
 
         stage('Flutter Analyze & Test') {
             steps {
-                echo '🔍 Flutter bağımlılıkları çekiliyor, analiz ve test çalıştırılıyor...'
+                echo '🔍 Flutter test ve analiz...'
                 sh '''
                     flutter pub get
                     flutter analyze
@@ -27,25 +27,25 @@ pipeline {
 
         stage('Build Flutter Web') {
             steps {
-                echo '🛠️ Flutter web uygulaması derleniyor...'
+                echo '🛠️ Web build...'
                 sh 'flutter build web'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                echo '🐳 Docker imajı build ediliyor (Flutter web için)...'
-                sh 'docker build -t $IMAGE_NAME -f Dockerfile.flutter .'
+                echo '🐳 Docker image...'
+                sh 'docker build -t flutter-web-app -f Dockerfile.flutter .'
             }
         }
 
         stage('Run Docker Container') {
             steps {
-                echo '🚀 Docker container başlatılıyor...'
+                echo '🚀 Docker çalıştırılıyor...'
                 sh '''
-                    docker stop $CONTAINER_NAME || echo "Zaten durmuş"
-                    docker rm $CONTAINER_NAME || echo "Zaten silinmiş"
-                    docker run -d -p 8082:80 --name $CONTAINER_NAME $IMAGE_NAME
+                    docker stop flutter-web-container || true
+                    docker rm flutter-web-container || true
+                    docker run -d -p 8082:80 --name flutter-web-container flutter-web-app
                 '''
             }
         }
@@ -53,10 +53,10 @@ pipeline {
 
     post {
         success {
-            echo '✅ Pipeline başarıyla tamamlandı.'
+            echo '✅ Başarıyla tamamlandı.'
         }
         failure {
-            echo '❌ Pipeline başarısız oldu!'
+            echo '❌ Pipeline başarısız!'
         }
     }
 }
