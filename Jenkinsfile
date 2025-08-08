@@ -15,14 +15,15 @@ pipeline {
         }
 
         stage('Analyze') {
-    steps {
-        echo "🔍 Kod analizi başlatılıyor..."
-        sh 'git config --global --add safe.directory /opt/flutter'
-        sh 'chmod -R u+rwX /opt/flutter/bin/cache'  // Burada izinleri tekrar açıyoruz
-        sh 'flutter analyze'
-    }
-}
-
+            steps {
+                echo "🔍 Kod analizi başlatılıyor..."
+                // Flutter dizinine güvenli erişim için
+                sh 'git config --global --add safe.directory /opt/flutter'
+                // İzinleri kontrol etmek için (gerekirse)
+                sh 'chmod -R u+rwX /opt/flutter/bin/cache'
+                sh 'flutter analyze'
+            }
+        }
 
         stage('Test') {
             steps {
@@ -41,7 +42,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo "🚀 Deploy işlemi başlatılıyor..."
-                // Örnek deploy komutu, sunucu ve yoluna göre değiştir
+                // Örnek: build dosyalarını uzak sunucuya gönder
                 // sh 'scp -r build/web/* user@yourserver:/var/www/html'
             }
         }
