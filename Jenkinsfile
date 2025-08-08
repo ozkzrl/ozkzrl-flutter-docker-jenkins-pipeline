@@ -1,50 +1,71 @@
 pipeline {
-    agent any
+    agent {
+        dockerfile {
+            filename 'Dockerfile'
+            dir '.'         // Dockerfile'ın olduğu dizin
+            label 'docker'  // Bu label'a sahip bir Jenkins agent olmalı
+        }
+    }
 
     environment {
-        FLUTTER_HOME = "${WORKSPACE}/flutter"
-        PATH = "${FLUTTER_HOME}/bin:${PATH}"
+        FLUTTER_HOME = "/opt/flutter"
+        PATH = "${env.FLUTTER_HOME}/bin:${env.PATH}"
+        DEPLOY_DIR = "/var/www/html"  // Local deploy klasörün
     }
 
     stages {
-        stage('Install Flutter') {
+        stage('Checkout') {
             steps {
-                sh '''
-                    git clone https://github.com/flutter/flutter.git -b stable $FLUTTER_HOME
-                    flutter doctor
-                '''
+                git 'https://github.com/kullanici/flutter-projeniz.git'  // Kendi repo URL'in
+            }
+        }
+
+        stage('Flutter Clean') {
+            steps {
+                sh 'flutter clean'
+            }
+        }
+
+        stage('Flutter Pub Get') {
+            steps {
+                sh 'flutter pub get'
             }
         }
 
         stage('Flutter Analyze') {
             steps {
-                sh 'flutter pub get'
                 sh 'flutter analyze'
             }
         }
 
-        stage('Flutter Test') {
+        stage('Run Tests') {
             steps {
                 sh 'flutter test'
             }
         }
 
-        stage('Flutter Build APK') {
+        stage('Flutter Build Web') {
             steps {
-                sh 'flutter build apk'
+                sh 'flutter build web'
             }
         }
 
-        stage('Deploy') {
+        stage('Deploy to Local Server') {
             steps {
-                echo 'Deploy işlemi burada yapılır.'
+                echo 'Deploy aşaması başlıyor...'
+
+                // build/web içeriğini deploy dizinine kopyala
+                sh "cp -r build/web/* ${DEPLOY_DIR}/"
             }
         }
     }
 
     post {
+        success {
+            echo '✅ Pipeline başarıyla tamamlandı.'
+        }
         failure {
-            echo '❌ Pipeline başarısız oldu.'
+            echo '❌ Pipeline bir hata ile karşılaştı.'
         }
     }
 }
