@@ -18,6 +18,8 @@ pipeline {
         stage('Analyze') {
             steps {
                 echo "🔍 Kod analizi başlatılıyor..."
+                sh 'git config --global --add safe.directory /opt/flutter'
+
                 sh 'flutter analyze'
             }
         }
