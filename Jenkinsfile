@@ -15,12 +15,14 @@ pipeline {
         }
 
         stage('Analyze') {
-            steps {
-                echo "🔍 Kod analizi başlatılıyor..."
-                sh 'git config --global --add safe.directory /opt/flutter'
-                sh 'flutter analyze'
-            }
-        }
+    steps {
+        echo "🔍 Kod analizi başlatılıyor..."
+        sh 'git config --global --add safe.directory /opt/flutter'
+        sh 'chmod -R u+rwX /opt/flutter/bin/cache'  // Burada izinleri tekrar açıyoruz
+        sh 'flutter analyze'
+    }
+}
+
 
         stage('Test') {
             steps {

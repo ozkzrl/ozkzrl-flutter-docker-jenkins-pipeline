@@ -15,13 +15,14 @@ RUN apt-get update && apt-get install -y \
 # Flutter SDK'yı indir
 RUN git clone https://github.com/flutter/flutter.git /opt/flutter
 
-# PATH ayarları için ENV
 ENV FLUTTER_HOME="/opt/flutter"
 ENV PATH="${FLUTTER_HOME}/bin:${FLUTTER_HOME}/bin/cache/dart-sdk/bin:${PATH}"
 
-# Flutter cache'i root kullanıcısı ile oluştur
-RUN flutter --version
+# Flutter SDK cache'i root ile oluştur
 RUN flutter precache --web
+
+# Cache içindeki engine.stamp ve diğer dosyalara yazma izinleri verelim (recursive)
+RUN chmod -R u+rwX /opt/flutter/bin/cache
 
 # Flutter dosyalarının sahibi jenkins kullanıcısı olsun
 RUN chown -R jenkins:jenkins /opt/flutter
@@ -31,5 +32,4 @@ RUN groupadd -f docker && usermod -aG docker jenkins
 
 USER jenkins
 
-# Jenkins kullanıcısı altında Flutter kontrolü (isteğe bağlı)
 RUN flutter --version
