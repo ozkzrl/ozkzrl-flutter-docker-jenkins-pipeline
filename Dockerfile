@@ -2,7 +2,6 @@ FROM jenkins/jenkins:lts
 
 USER root
 
-# Gerekli paketlerin kurulumu
 RUN apt-get update && apt-get install -y \
     docker.io \
     git \
@@ -16,22 +15,22 @@ RUN apt-get update && apt-get install -y \
 # Flutter SDK'yı klonla
 RUN git clone https://github.com/flutter/flutter.git /opt/flutter
 
-# Güvenli dizin olarak işaretle
-RUN git config --global --add safe.directory /opt/flutter
+# Flutter cache'i root olarak hazırla
+ENV PATH="/opt/flutter/bin:/opt/flutter/bin/cache/dart-sdk/bin:${PATH}"
 
-# Flutter dizin ve cache izinlerini düzelt
-RUN chown -R jenkins:jenkins /opt/flutter && \
-    chmod -R u+rwX /opt/flutter/bin/cache
+RUN flutter --version
+RUN flutter precache --web
+
+# Flutter dizin izinlerini Jenkins kullanıcısına ver
+RUN chown -R jenkins:jenkins /opt/flutter
 
 # Jenkins kullanıcısını docker grubuna ekle
 RUN groupadd -f docker && usermod -aG docker jenkins
 
-# Ortam değişkenleri
 ENV FLUTTER_HOME="/opt/flutter"
 ENV PATH="${FLUTTER_HOME}/bin:${FLUTTER_HOME}/bin/cache/dart-sdk/bin:${PATH}"
 
 USER jenkins
 
-# Flutter versiyonu kontrolü ve önbellek
+# Jenkins kullanıcısı altında test
 RUN flutter --version
-RUN flutter precache --web
