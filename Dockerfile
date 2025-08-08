@@ -16,16 +16,15 @@ RUN apt-get update && apt-get install -y \
 RUN git clone https://github.com/flutter/flutter.git /opt/flutter \
     && git config --global --add safe.directory /opt/flutter
 
+# Sahiplik ve izinleri ayarla (önce root olarak)
+RUN chown -R jenkins:jenkins /opt/flutter && chmod -R u+rwX /opt/flutter
+
 ENV FLUTTER_HOME="/opt/flutter"
 ENV PATH="${FLUTTER_HOME}/bin:${FLUTTER_HOME}/bin/cache/dart-sdk/bin:${PATH}"
-
-# Flutter klasöründeki tüm dosya ve alt dizinlerin sahipliğini ve izinlerini değiştir
-RUN chown -R jenkins:jenkins /opt/flutter && \
-    chmod -R u+rwX /opt/flutter
 
 RUN groupadd -f docker && usermod -aG docker jenkins
 
 USER jenkins
 
-# Flutter cache'i ve sürümü bu kullanıcı altında oluştur
+# Flutter versiyon kontrolü ve önbellek oluşturma
 RUN flutter --version && flutter precache --web
