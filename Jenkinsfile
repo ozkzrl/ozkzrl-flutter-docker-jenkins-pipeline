@@ -2,12 +2,11 @@ pipeline {
     agent any
 
     environment {
-        FLUTTER_HOME = "/usr/local/flutter"
+        FLUTTER_HOME = "/opt/flutter"
         PATH = "${FLUTTER_HOME}/bin:${env.PATH}"
     }
 
     stages {
-
         stage('Checkout') {
             steps {
                 echo "📦 Kaynak kod çekiliyor..."
@@ -19,7 +18,7 @@ pipeline {
             steps {
                 echo "🔍 Kod analizi başlatılıyor..."
                 sh 'git config --global --add safe.directory /opt/flutter'
-
+                sh 'chmod -R u+rwX /opt/flutter/bin/cache'
                 sh 'flutter analyze'
             }
         }
@@ -41,8 +40,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo "🚀 Deploy işlemi başlatılıyor..."
-                // Örneğin build klasörünü bir sunucuya SCP ile atabilirsiniz
-                sh 'scp -r build/web/* user@yourserver:/var/www/html'
+                // Örnek: scp -r build/web/* user@yourserver:/var/www/html
             }
         }
     }
