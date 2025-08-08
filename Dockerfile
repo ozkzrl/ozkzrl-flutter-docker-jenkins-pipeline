@@ -2,7 +2,7 @@ FROM jenkins/jenkins:lts
 
 USER root
 
-# Gerekli paketler (Flutter + Docker CLI için)
+# Gerekli paketler (Docker CLI dahil)
 RUN apt-get update && apt-get install -y \
     docker.io \
     curl \
@@ -11,21 +11,19 @@ RUN apt-get update && apt-get install -y \
     xz-utils \
     zip \
     libglu1-mesa \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    && apt-get clean
 
-# Flutter SDK'yı indir ve kur
-RUN git clone https://github.com/flutter/flutter.git /opt/flutter \
-    && /opt/flutter/bin/flutter doctor
+# Flutter SDK yükleme
+RUN git clone https://github.com/flutter/flutter.git /opt/flutter
 
-# PATH ayarları
+# Flutter PATH ayarları
 ENV FLUTTER_HOME="/opt/flutter"
 ENV PATH="${FLUTTER_HOME}/bin:${FLUTTER_HOME}/bin/cache/dart-sdk/bin:${PATH}"
 
-# Web için Flutter cache'i indir
-RUN flutter precache --web
+# Flutter versiyon kontrol + web için önceden cache oluşturma
+RUN flutter --version && flutter precache --web
 
-# Flutter sürüm kontrolü
-RUN flutter --version
+# Jenkins kullanıcısını docker grubuna ekle
+RUN groupadd -for docker && usermod -aG docker jenkins
 
 USER jenkins

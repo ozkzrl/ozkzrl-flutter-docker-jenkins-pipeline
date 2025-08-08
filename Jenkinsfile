@@ -1,71 +1,56 @@
 pipeline {
-    agent {
-        dockerfile {
-            filename 'Dockerfile'
-            dir '.'         // Dockerfile'ın olduğu dizin
-        
-        }
-    }
+    agent any
 
     environment {
-        FLUTTER_HOME = "/opt/flutter"
-        PATH = "${env.FLUTTER_HOME}/bin:${env.PATH}"
-        DEPLOY_DIR = "/var/www/html"  // Local deploy klasörün
+        FLUTTER_HOME = "/usr/local/flutter"
+        PATH = "${FLUTTER_HOME}/bin:${env.PATH}"
     }
 
     stages {
+
         stage('Checkout') {
             steps {
-                git 'https://github.com/kullanici/flutter-projeniz.git'  // Kendi repo URL'in
+                echo "📦 Kaynak kod çekiliyor..."
+                checkout scm
             }
         }
 
-        stage('Flutter Clean') {
+        stage('Analyze') {
             steps {
-                sh 'flutter clean'
-            }
-        }
-
-        stage('Flutter Pub Get') {
-            steps {
-                sh 'flutter pub get'
-            }
-        }
-
-        stage('Flutter Analyze') {
-            steps {
+                echo "🔍 Kod analizi başlatılıyor..."
                 sh 'flutter analyze'
             }
         }
 
-        stage('Run Tests') {
+        stage('Test') {
             steps {
+                echo "🧪 Testler çalıştırılıyor..."
                 sh 'flutter test'
             }
         }
 
-        stage('Flutter Build Web') {
+        stage('Build Web') {
             steps {
+                echo "🏗️ Web için build alınıyor..."
                 sh 'flutter build web'
             }
         }
 
-        stage('Deploy to Local Server') {
+        stage('Deploy') {
             steps {
-                echo 'Deploy aşaması başlıyor...'
-
-                // build/web içeriğini deploy dizinine kopyala
-                sh "cp -r build/web/* ${DEPLOY_DIR}/"
+                echo "🚀 Deploy işlemi başlatılıyor..."
+                // Örneğin build klasörünü bir sunucuya SCP ile atabilirsiniz
+                sh 'scp -r build/web/* user@yourserver:/var/www/html'
             }
         }
     }
 
     post {
         success {
-            echo '✅ Pipeline başarıyla tamamlandı.'
+            echo "✅ Pipeline başarıyla tamamlandı!"
         }
         failure {
-            echo '❌ Pipeline bir hata ile karşılaştı.'
+            echo "❌ Pipeline başarısız oldu. Logları kontrol edin."
         }
     }
 }
