@@ -4,7 +4,6 @@ pipeline {
     environment {
         IMAGE_NAME = 'flutter-web-app'
         CONTAINER_NAME = 'flutter-web-container'
-        PATH = "C:\\flutter\\bin;C:\\flutter\\bin\\cache\\dart-sdk\\bin;${env.PATH}"
     }
 
     stages {
@@ -18,7 +17,7 @@ pipeline {
         stage('Flutter Analyze & Test') {
             steps {
                 echo '🔍 Flutter bağımlılıkları çekiliyor, analiz ve test çalıştırılıyor...'
-                bat '''
+                sh '''
                     flutter pub get
                     flutter analyze
                     flutter test
@@ -29,24 +28,24 @@ pipeline {
         stage('Build Flutter Web') {
             steps {
                 echo '🛠️ Flutter web uygulaması derleniyor...'
-                bat 'flutter build web'
+                sh 'flutter build web'
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 echo '🐳 Docker imajı build ediliyor (Flutter web için)...'
-                bat 'docker build -t %IMAGE_NAME% -f Dockerfile.flutter .'
+                sh 'docker build -t $IMAGE_NAME -f Dockerfile.flutter .'
             }
         }
 
         stage('Run Docker Container') {
             steps {
                 echo '🚀 Docker container başlatılıyor...'
-                bat '''
-                    docker stop %CONTAINER_NAME% || echo Zaten durmuş
-                    docker rm %CONTAINER_NAME% || echo Zaten silinmiş
-                    docker run -d -p 8082:80 --name %CONTAINER_NAME% %IMAGE_NAME%
+                sh '''
+                    docker stop $CONTAINER_NAME || echo "Zaten durmuş"
+                    docker rm $CONTAINER_NAME || echo "Zaten silinmiş"
+                    docker run -d -p 8082:80 --name $CONTAINER_NAME $IMAGE_NAME
                 '''
             }
         }
