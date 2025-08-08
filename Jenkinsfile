@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         FLUTTER_HOME = "/opt/flutter"
-        PATH = "${FLUTTER_HOME}/bin:${env.PATH}"
+        PATH = "${FLUTTER_HOME}/bin:${FLUTTER_HOME}/bin/cache/dart-sdk/bin:${env.PATH}"
     }
 
     stages {
@@ -18,7 +18,6 @@ pipeline {
             steps {
                 echo "🔍 Kod analizi başlatılıyor..."
                 sh 'git config --global --add safe.directory /opt/flutter'
-                sh 'chmod -R u+rwX /opt/flutter/bin/cache'
                 sh 'flutter analyze'
             }
         }
@@ -40,7 +39,8 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo "🚀 Deploy işlemi başlatılıyor..."
-                // Örnek: scp -r build/web/* user@yourserver:/var/www/html
+                // Örnek deploy komutu, sunucu ve yoluna göre değiştir
+                // sh 'scp -r build/web/* user@yourserver:/var/www/html'
             }
         }
     }

@@ -12,25 +12,24 @@ RUN apt-get update && apt-get install -y \
     libglu1-mesa \
     && apt-get clean
 
-# Flutter SDK'yı klonla
+# Flutter SDK'yı indir
 RUN git clone https://github.com/flutter/flutter.git /opt/flutter
 
-# Flutter cache'i root olarak hazırla
-ENV PATH="/opt/flutter/bin:/opt/flutter/bin/cache/dart-sdk/bin:${PATH}"
+# PATH ayarları için ENV
+ENV FLUTTER_HOME="/opt/flutter"
+ENV PATH="${FLUTTER_HOME}/bin:${FLUTTER_HOME}/bin/cache/dart-sdk/bin:${PATH}"
 
+# Flutter cache'i root kullanıcısı ile oluştur
 RUN flutter --version
 RUN flutter precache --web
 
-# Flutter dizin izinlerini Jenkins kullanıcısına ver
+# Flutter dosyalarının sahibi jenkins kullanıcısı olsun
 RUN chown -R jenkins:jenkins /opt/flutter
 
 # Jenkins kullanıcısını docker grubuna ekle
 RUN groupadd -f docker && usermod -aG docker jenkins
 
-ENV FLUTTER_HOME="/opt/flutter"
-ENV PATH="${FLUTTER_HOME}/bin:${FLUTTER_HOME}/bin/cache/dart-sdk/bin:${PATH}"
-
 USER jenkins
 
-# Jenkins kullanıcısı altında test
+# Jenkins kullanıcısı altında Flutter kontrolü (isteğe bağlı)
 RUN flutter --version
