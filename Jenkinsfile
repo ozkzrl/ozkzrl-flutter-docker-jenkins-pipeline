@@ -11,7 +11,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 echo '📥 Kod GitHub\'dan dev branch\'ten çekiliyor...'
-                git branch: 'dev', url: 'https://github.com/ozkzrl/flutter_test_app_pipeline_in_container.git'
+                git branch: 'dev', url: 'https://github.com/ozkzrl/ozkzrl-flutter-docker-jenkins-pipeline.git'
             }
         }
 
