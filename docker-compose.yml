@@ -6,11 +6,11 @@ services:
     container_name: jenkins-flutter
     restart: unless-stopped
     ports:
-      - "8080:8080"
-      - "50000:50000"
+      - "8080:8080"   # Jenkins
+      - "5000:5000"   # Flutter Web
     volumes:
       - jenkins_home:/var/jenkins_home
-      - /var/run/docker.sock:/var/run/docker.sock  # BU SATIRI EKLE
+      - /var/run/docker.sock:/var/run/docker.sock
 
 volumes:
   jenkins_home:

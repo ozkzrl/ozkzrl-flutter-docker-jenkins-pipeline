@@ -10,6 +10,8 @@ RUN apt-get update && apt-get install -y \
     xz-utils \
     zip \
     libglu1-mesa \
+    python3 \
+    python3-pip \
     && apt-get clean
 
 # Flutter SDK'yı indir
@@ -30,7 +32,9 @@ RUN chown -R jenkins:jenkins /opt/flutter
 # Jenkins kullanıcısını docker grubuna ekle
 RUN groupadd -f docker && usermod -aG docker jenkins
 
+# Basit bir Python HTTP server ile build/web klasörünü 5000 portundan servis edeceğiz
 USER jenkins
+WORKDIR /var/jenkins_home
 
-RUN flutter --version
-
+# Container başlatıldığında hem Jenkins hem de Flutter Web server çalışsın
+CMD bash -c "jenkins.sh & python3 -m http.server --directory /var/jenkins_home/workspace/flutter-pipeli-container/build/web 5000"
