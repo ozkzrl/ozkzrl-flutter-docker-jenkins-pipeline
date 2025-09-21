@@ -17,9 +17,7 @@ pipeline {
         stage('Analyze') {
             steps {
                 echo "🔍 Kod analizi başlatılıyor..."
-                // Flutter dizinine güvenli erişim için
                 sh 'git config --global --add safe.directory /opt/flutter'
-                // İzinleri kontrol etmek için (gerekirse)
                 sh 'chmod -R u+rwX /opt/flutter/bin/cache'
                 sh 'flutter analyze'
             }
@@ -42,15 +40,15 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo "🚀 Deploy işlemi başlatılıyor..."
-                // Örnek: build dosyalarını uzak sunucuya gönder
-                // sh 'scp -r build/web/* user@yourserver:/var/www/html'
+                // build/web klasörünü 5000 portunda serve et
+                sh 'cd build/web && nohup python3 -m http.server 5000 &'
             }
         }
     }
 
     post {
         success {
-            echo "✅ Pipeline başarıyla tamamlandı!"
+            echo "✅ Pipeline başarıyla tamamlandı! Projeye http://localhost:5000 üzerinden ulaşabilirsiniz."
         }
         failure {
             echo "❌ Pipeline başarısız oldu. Logları kontrol edin."
